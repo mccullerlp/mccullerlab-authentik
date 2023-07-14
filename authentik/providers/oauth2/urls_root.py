@@ -5,6 +5,7 @@ from django.urls import include, path
 from authentik.providers.oauth2.views.authorize import AuthorizationFlowInitView
 from authentik.providers.oauth2.views.device_init import DeviceEntryView
 from authentik.providers.oauth2.views.github import GitHubUserTeamsView, GitHubUserView
+from authentik.providers.oauth2.views.gitlab import GitLabUserView
 from authentik.providers.oauth2.views.token import TokenView
 
 github_urlpatterns = [
@@ -30,8 +31,27 @@ github_urlpatterns = [
     ),
 ]
 
+gitlab_urlpatterns = [
+    path(
+        "oauth/authorize",
+        AuthorizationFlowInitView.as_view(),
+        name="gitlab-authorize",
+    ),
+    path(
+        "oauth/token",
+        TokenView.as_view(),
+        name="gitlab-token",
+    ),
+    path(
+        "api/v4/user",
+        GitLabUserView.as_view(),
+        name="gitlab-user",
+    ),
+]
+
 urlpatterns = [
     path("", include(github_urlpatterns)),
+    path("", include(gitlab_urlpatterns)),
     path(
         "device",
         login_required(
