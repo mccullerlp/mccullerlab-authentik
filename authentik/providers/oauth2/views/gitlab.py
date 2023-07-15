@@ -13,7 +13,7 @@ from authentik.providers.oauth2.utils import protected_resource_view
 
 @method_decorator(csrf_exempt, name="dispatch")
 # not sure about this
-@method_decorator(protected_resource_view(['read_user']), name="dispatch")
+@method_decorator(protected_resource_view([]), name="dispatch")
 class GitLabUserView(View):
     """Emulate GitLab's /user API Endpoint"""
 
@@ -23,7 +23,7 @@ class GitLabUserView(View):
         return JsonResponse(
             {
                 #"login": user.username,
-                "login": user.name.join('-'),
+                "login": '-'.join(user.name.split()),
                 "id": user.pk,
                 "node_id": "",
                 "avatar_url": "",

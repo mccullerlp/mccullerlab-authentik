@@ -1,5 +1,8 @@
----
-version: "3.4"
+version: "3.9"
+
+x-logging:
+  &default-logging
+    driver: journald
 
 services:
   postgresql:
@@ -11,14 +14,19 @@ services:
       interval: 30s
       retries: 5
       timeout: 5s
+    networks:
+      default:
     volumes:
       - database:/var/lib/postgresql/data
+      - ./backup/:/backup/
+      - ../volumes/auth_backup/:/backup_data/
     environment:
       POSTGRES_PASSWORD: ${PG_PASS:?database password required}
       POSTGRES_USER: ${PG_USER:-authentik}
       POSTGRES_DB: ${PG_DB:-authentik}
     env_file:
       - .env
+    logging: *default-logging
   redis:
     image: docker.io/library/redis:alpine
     command: --save 60 1 --loglevel warning
@@ -29,12 +37,26 @@ services:
       interval: 30s
       retries: 5
       timeout: 3s
+    networks:
+      default:
     volumes:
       - redis:/data
+    logging: *default-logging
   server:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.5.4}
+    image: authentik-mccullerlab
+      # image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.5.4}
+    build:
+      context: './'
+      # args:
+      #  APACHE_VERSION: ${APACHE_VERSION}
     restart: unless-stopped
     command: server
+    networks:
+      default:
+          aliases:
+            - users.docker.local
+            - users.mccullerlab.com
+            - authentik-server
     environment:
       AUTHENTIK_REDIS__HOST: redis
       AUTHENTIK_POSTGRESQL__HOST: postgresql
@@ -43,14 +65,22 @@ services:
       AUTHENTIK_POSTGRESQL__PASSWORD: ${PG_PASS}
     volumes:
       - ./media:/media
+      - ./authentik_built/:/authentik_built/
+      # - ./authentik_built/:/authentik/
       - ./custom-templates:/templates
     env_file:
       - .env
-    ports:
-      - "${COMPOSE_PORT_HTTP:-9000}:9000"
-      - "${COMPOSE_PORT_HTTPS:-9443}:9443"
+    logging: *default-logging
+    # ports:
+    #   - "${COMPOSE_PORT_HTTP:-9000}:9000"
+    #   - "${COMPOSE_PORT_HTTPS:-9443}:443"
+    depends_on:
+      - postgresql
+      - redis
   worker:
-    image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.5.4}
+    image: authentik-mccullerlab
+    # image: ${AUTHENTIK_IMAGE:-ghcr.io/goauthentik/server}:${AUTHENTIK_TAG:-2023.5.4}
+
     restart: unless-stopped
     command: worker
     environment:
@@ -65,14 +95,30 @@ services:
     # Removing `user: root` also prevents the worker from fixing the permissions
     # on the mounted folders, so when removing this make sure the folders have the correct UID/GID
     # (1000:1000 by default)
-    user: root
+    # - this works but is dangerious
+    # user: root
+    networks:
+      default:
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      # need docker proxy to want to use this
+      # - /var/run/docker.sock:/var/run/docker.sock
       - ./media:/media
       - ./certs:/certs
       - ./custom-templates:/templates
     env_file:
       - .env
+    # the worker doesn't need to be externally exposed
+    # ports:
+    #   - "9001:9000"
+    #   - "9444:9443"
+    logging: *default-logging
+    depends_on:
+      - postgresql
+      - redis
+      - server
+
+networks:
+  default:
 
 volumes:
   database:
