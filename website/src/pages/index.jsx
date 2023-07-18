@@ -2,6 +2,7 @@ import React from "react";
 import clsx from "clsx";
 import Layout from "@theme/Layout";
 import Link from "@docusaurus/Link";
+import Head from "@docusaurus/Head";
 import BrowserOnly from "@docusaurus/core/lib/client/exports/BrowserOnly";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 import useBaseUrl from "@docusaurus/useBaseUrl";
@@ -63,6 +64,12 @@ function Home() {
     const { siteConfig = {} } = context;
     return (
         <Layout title="Welcome" description={siteConfig.tagline}>
+            <Head>
+                <meta
+                    name="go-import"
+                    content="goauthentik.io git https://github.com/goauthentik/authentik"
+                ></meta>
+            </Head>
             <header className={clsx("hero hero--primary", styles.heroBanner)}>
                 <div className="container">
                     <div className="row">
@@ -78,7 +85,7 @@ function Home() {
                                 <Link
                                     className={clsx(
                                         "button button--outline button--secondary button--lg",
-                                        styles.getStarted
+                                        styles.getStarted,
                                     )}
                                     to={useBaseUrl("docs/installation/")}
                                 >
@@ -114,13 +121,13 @@ function Home() {
                                                     firstImage={{
                                                         id: 1,
                                                         imageUrl: useBaseUrl(
-                                                            "img/screen_apps_dark.jpg"
+                                                            "img/screen_apps_dark.jpg",
                                                         ),
                                                     }}
                                                     secondImage={{
                                                         id: 2,
                                                         imageUrl: useBaseUrl(
-                                                            "img/screen_apps_light.jpg"
+                                                            "img/screen_apps_light.jpg",
                                                         ),
                                                     }}
                                                 />
@@ -166,13 +173,13 @@ function Home() {
                                                     firstImage={{
                                                         id: 1,
                                                         imageUrl: useBaseUrl(
-                                                            "img/screen_admin_dark.jpg"
+                                                            "img/screen_admin_dark.jpg",
                                                         ),
                                                     }}
                                                     secondImage={{
                                                         id: 2,
                                                         imageUrl: useBaseUrl(
-                                                            "img/screen_admin_light.jpg"
+                                                            "img/screen_admin_light.jpg",
                                                         ),
                                                     }}
                                                 />

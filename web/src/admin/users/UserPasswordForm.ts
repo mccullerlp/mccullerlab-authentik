@@ -3,8 +3,7 @@ import "@goauthentik/elements/buttons/SpinnerButton";
 import { Form } from "@goauthentik/elements/forms/Form";
 import "@goauthentik/elements/forms/HorizontalFormElement";
 
-import { t } from "@lingui/macro";
-
+import { msg } from "@lit/localize";
 import { TemplateResult, html } from "lit";
 import { customElement, property } from "lit/decorators.js";
 
@@ -16,7 +15,7 @@ export class UserPasswordForm extends Form<UserPasswordSetRequest> {
     instancePk?: number;
 
     getSuccessMessage(): string {
-        return t`Successfully updated password.`;
+        return msg("Successfully updated password.");
     }
 
     async send(data: UserPasswordSetRequest): Promise<void> {
@@ -28,7 +27,7 @@ export class UserPasswordForm extends Form<UserPasswordSetRequest> {
 
     renderInlineForm(): TemplateResult {
         return html`<ak-form-element-horizontal
-            label=${t`Password`}
+            label=${msg("Password")}
             ?required=${true}
             name="password"
         >

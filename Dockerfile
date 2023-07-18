@@ -20,7 +20,7 @@ WORKDIR /work/web
 RUN npm ci --include=dev && npm run build
 
 # Stage 3: Poetry to requirements.txt export
-FROM docker.io/python:3.11.3-slim-bullseye AS poetry-locker
+FROM docker.io/python:3.11.4-slim-bullseye AS poetry-locker
 
 WORKDIR /work
 COPY ./pyproject.toml /work
@@ -31,7 +31,7 @@ RUN pip install --no-cache-dir poetry && \
     poetry export -f requirements.txt --dev --output requirements-dev.txt
 
 # Stage 4: Build go proxy
-FROM docker.io/golang:1.20.4-bullseye AS go-builder
+FROM docker.io/golang:1.20.5-bullseye AS go-builder
 
 WORKDIR /work
 
@@ -63,16 +63,19 @@ RUN --mount=type=secret,id=GEOIPUPDATE_ACCOUNT_ID \
     "
 
 # Stage 6: Run
-FROM docker.io/python:3.11.3-slim-bullseye AS final-image
+FROM docker.io/python:3.11.4-slim-bullseye AS final-image
+
+ARG GIT_BUILD_HASH
+ARG VERSION
+ENV GIT_BUILD_HASH=$GIT_BUILD_HASH
 
 LABEL org.opencontainers.image.url https://goauthentik.io
 LABEL org.opencontainers.image.description goauthentik.io Main server image, see https://goauthentik.io for more info.
 LABEL org.opencontainers.image.source https://github.com/goauthentik/authentik
+LABEL org.opencontainers.image.version ${VERSION}
+LABEL org.opencontainers.image.revision ${GIT_BUILD_HASH}
 
 WORKDIR /
-
-ARG GIT_BUILD_HASH
-ENV GIT_BUILD_HASH=$GIT_BUILD_HASH
 
 COPY --from=poetry-locker /work/requirements.txt /
 COPY --from=poetry-locker /work/requirements-dev.txt /

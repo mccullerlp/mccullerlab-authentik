@@ -20,6 +20,7 @@ from authentik.flows.models import FlowDesignation, NotConfiguredAction, Stage
 from authentik.flows.planner import PLAN_CONTEXT_PENDING_USER
 from authentik.flows.stage import ChallengeStageView
 from authentik.lib.utils.time import timedelta_from_string
+from authentik.root.install_id import get_install_id
 from authentik.stages.authenticator_sms.models import SMSDevice
 from authentik.stages.authenticator_validate.challenge import (
     DeviceChallenge,
@@ -281,7 +282,7 @@ class AuthenticatorValidateStageView(ChallengeStageView):
             and self.executor.current_stage.not_configured_action == NotConfiguredAction.CONFIGURE
         ):
             self.logger.debug("Got selected stage in context, running that")
-            stage_pk = self.executor.plan.context(PLAN_CONTEXT_SELECTED_STAGE)
+            stage_pk = self.executor.plan.context.get(PLAN_CONTEXT_SELECTED_STAGE)
             # Because the foreign key to stage.configuration_stage points to
             # a base stage class, we need to do another lookup
             stage = Stage.objects.get_subclass(pk=stage_pk)
@@ -319,7 +320,7 @@ class AuthenticatorValidateStageView(ChallengeStageView):
     def cookie_jwt_key(self) -> str:
         """Signing key for MFA Cookie for this stage"""
         return sha256(
-            f"{settings.SECRET_KEY}:{self.executor.current_stage.pk.hex}".encode("ascii")
+            f"{get_install_id()}:{self.executor.current_stage.pk.hex}".encode("ascii")
         ).hexdigest()
 
     def check_mfa_cookie(self, allowed_devices: list[Device]):

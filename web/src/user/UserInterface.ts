@@ -22,8 +22,7 @@ import { DefaultTenant } from "@goauthentik/elements/sidebar/SidebarBrand";
 import "@goauthentik/elements/sidebar/SidebarItem";
 import { ROUTES } from "@goauthentik/user/Routes";
 
-import { t } from "@lingui/macro";
-
+import { msg } from "@lit/localize";
 import { CSSResult, TemplateResult, css, html } from "lit";
 import { customElement, property, state } from "lit/decorators.js";
 
@@ -85,8 +84,8 @@ export class UserInterface extends Interface {
                     display: none;
                 }
                 .pf-c-brand {
-                    min-height: 48px;
-                    height: 48px;
+                    min-height: 32px;
+                    height: 32px;
                 }
                 .has-notifications {
                     color: #2b9af3;
@@ -190,7 +189,7 @@ export class UserInterface extends Interface {
                                   <button
                                       class="pf-c-button pf-m-plain"
                                       type="button"
-                                      aria-label="${t`Unread notifications`}"
+                                      aria-label="${msg("Unread notifications")}"
                                       @click=${() => {
                                           this.notificationDrawerOpen =
                                               !this.notificationDrawerOpen;
@@ -230,7 +229,7 @@ export class UserInterface extends Interface {
                                   class="pf-c-button pf-m-primary pf-m-small pf-u-display-none pf-u-display-block-on-md"
                                   href="/if/admin"
                               >
-                                  ${t`Admin interface`}
+                                  ${msg("Admin interface")}
                               </a>`
                             : html``}
                     </div>
@@ -248,7 +247,7 @@ export class UserInterface extends Interface {
                                                   });
                                           }}
                                       >
-                                          ${t`Stop impersonation`}
+                                          ${msg("Stop impersonation")}
                                       </ak-action-button>
                                   </div>
                               </div>`
@@ -258,7 +257,11 @@ export class UserInterface extends Interface {
                             ${userDisplay}
                         </div>
                     </div>
-                    <img class="pf-c-avatar" src=${this.me.user.avatar} alt="${t`Avatar image`}" />
+                    <img
+                        class="pf-c-avatar"
+                        src=${this.me.user.avatar}
+                        alt="${msg("Avatar image")}"
+                    />
                 </div>
             </header>
             <div class="pf-c-page__drawer">
